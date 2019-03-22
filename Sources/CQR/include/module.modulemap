@@ -1,0 +1,4 @@
+module CQR {
+    umbrella header "shim.h"
+    export *
+}

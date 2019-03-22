@@ -1,0 +1,6 @@
+module clibpng [system] {
+	header "shim.h"
+	link "png"
+	link "z"
+	export *
+}
