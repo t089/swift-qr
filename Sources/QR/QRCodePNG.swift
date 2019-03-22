@@ -9,7 +9,7 @@ import Foundation
 import clibpng
 
 public extension QRCode {
-    public func png(pixelSize: Int) -> Data {
+    public func png(pixelSize: Int, border: Int = 0) -> Data {
         var png_ptr = png_create_write_struct(PNG_LIBPNG_VER_STRING, nil, nil, nil);
         var info_ptr = png_create_info_struct(png_ptr)
         defer {
@@ -33,8 +33,9 @@ public extension QRCode {
         
         png_set_write_fn(png_ptr, &state, write, flush)
         
-        let height = self.size * pixelSize
-        let width = self.size * pixelSize
+        let borderWidth = pixelSize * border
+        let height = self.size * pixelSize + 2 * borderWidth
+        let width = self.size * pixelSize + 2 * borderWidth
         
         png_set_IHDR(png_ptr, info_ptr, png_uint_32(width), png_uint_32(height), 8, PNG_COLOR_TYPE_GRAY, PNG_INTERLACE_NONE, PNG_COMPRESSION_TYPE_DEFAULT, PNG_FILTER_TYPE_BASE)
         
@@ -43,7 +44,11 @@ public extension QRCode {
         for i in 0..<height {
             rows[i] = png_bytep.allocate(capacity: width)
             for k in 0..<width {
-                rows[i]![k] = self[k / pixelSize, i / pixelSize] ? 0x00 : 0xFF
+                if i < borderWidth || i >= height - borderWidth || k < borderWidth || k >= width - borderWidth {
+                    rows[i]![k] = 0xFF
+                } else {
+                    rows[i]![k] = self[(k-borderWidth) / pixelSize, (i-borderWidth) / pixelSize] ? 0x00 : 0xFF
+                }
             }
         }
         
