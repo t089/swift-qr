@@ -43,7 +43,7 @@ public extension QRCode {
         for i in 0..<height {
             rows[i] = png_bytep.allocate(capacity: width)
             for k in 0..<width {
-                rows[i]![k] = self[k / pixelSize, i / pixelSize] ? 0xFF : 0x00
+                rows[i]![k] = self[k / pixelSize, i / pixelSize] ? 0x00 : 0xFF
             }
         }
         
