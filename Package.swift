@@ -22,6 +22,9 @@ let package = Package(
         .target(
             name: "CQR",
             dependencies: []),
+        .target(
+            name: "CQRShims",
+            dependencies: ["CQR"]),
         .systemLibrary(
             name: "clibpng",
             pkgConfig: "libpng",
@@ -34,7 +37,7 @@ let package = Package(
             dependencies: ["QR"]),
         .target(
             name: "QR",
-            dependencies: ["CQR", "clibpng"]),
+            dependencies: ["CQR", "CQRShims", "clibpng"]),
         .testTarget(
             name: "QRTests",
             dependencies: ["QR"]),

@@ -1,4 +1,5 @@
 import CQR
+import CQRShims
 
 private let MAX_BUFFER_LEN = shim_qrcodegen_BUFFER_LEN_MAX()
 
@@ -26,7 +27,7 @@ public struct QRCode {
         }
         
         try utf8.withUnsafeBufferPointer { (ptr) in
-            guard qrcodegen_encodeText(ptr.baseAddress, &buffer, &qr0, qrcodegen_Ecc(rawValue: eccLevel.rawValue), Int32(shim_qrcodegen_VERSION_MIN), Int32(shim_qrcodegen_VERSION_MAX), qrcodegen_Mask_AUTO, false) else {
+            guard qrcodegen_encodeText(ptr.baseAddress, &buffer, &qr0, qrcodegen_Ecc(rawValue: eccLevel.rawValue), Int32(qrcodegen_VERSION_MIN), Int32(qrcodegen_VERSION_MAX), qrcodegen_Mask_AUTO, false) else {
                 throw Error.inputTooLarge
             }
         }
