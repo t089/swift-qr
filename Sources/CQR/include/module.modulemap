@@ -1,4 +1,5 @@
 module CQR {
     umbrella header "shim.h"
+    header "qrcodegen.h"
     export *
 }
