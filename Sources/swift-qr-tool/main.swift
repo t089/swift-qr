@@ -3,24 +3,37 @@ import QR
 
 let basename = CommandLine.arguments[0].components(separatedBy: "/").last!
 let path: String
+let text: String
+var pixelSize = 4
+var border = pixelSize
 
-if CommandLine.argc < 2 {
+func fail() -> Never {
     struct StderrOutputStream: TextOutputStream {
         public mutating func write(_ string: String) { fputs(string, stderr) }
     }
     var errStream = StderrOutputStream()
-    print("Usage: \(basename) PATH", to: &errStream)
+    print("Usage: \(basename) CONTENT PATH [PIXEL_SIZE]", to: &errStream)
     abort()
-} else {
-    path = CommandLine.arguments[1]
 }
 
-let text = "https://www.holidu.com/goto-appstore?deeplink=https://www.holidu.de/bookings/06ea0342-002f-434b-aa38-d8275ebedffa😎"
+if CommandLine.argc < 3 {
+    fail()
+} else {
+    text = CommandLine.arguments[1]
+    path = CommandLine.arguments[2]
+    if CommandLine.arguments.count > 3 {
+        guard let size = Int(CommandLine.arguments[3]) else {
+            fail()
+        }
+
+        pixelSize = size
+    }
+}
 
 let qrCode = try QRCode(text: text)
 
-let png = qrCode.png(pixelSize: 4)
+let png : [UInt8] = qrCode.png(pixelSize: pixelSize, border: border)
 
-try png.write(to: .init(fileURLWithPath: path))
+try Data(png).write(to: .init(fileURLWithPath: path))
 
 

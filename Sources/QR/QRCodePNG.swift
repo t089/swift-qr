@@ -5,33 +5,35 @@
 //  Created by Tobias Haeberle on 22.03.19.
 //
 
-import Foundation
 import clibpng
 
-public extension QRCode {
-    public func png(pixelSize: Int, border: Int = 0) -> Data {
+extension QRCode {
+    public func png(pixelSize: Int, border: Int = 0) -> [UInt8] {
         var png_ptr = png_create_write_struct(PNG_LIBPNG_VER_STRING, nil, nil, nil);
         var info_ptr = png_create_info_struct(png_ptr)
         defer {
             png_destroy_write_struct(&png_ptr, &info_ptr)
         }
         
-        struct State {
-            var data: Data = Data()
+        class State {
+            var data: [UInt8] = []
         }
         
         func write(png_ptr: png_structp!, data: png_bytep!, length: png_size_t) {
-            let statePtr = png_get_io_ptr(png_ptr)!.bindMemory(to: State.self, capacity: 1)
-            statePtr.pointee.data.append(data, count: length)
+            let state : State = Unmanaged<State>.fromOpaque(png_get_io_ptr(png_ptr)).takeUnretainedValue()
+            let buffer = UnsafeBufferPointer(start: data, count: length)
+            state.data.append(contentsOf: buffer)
         }
         
         func flush(png_ptr: png_structp!) {
             
         }
         
-        var state = State()
+        let state = State()
+
+        let statePointer = Unmanaged.passUnretained(state)
         
-        png_set_write_fn(png_ptr, &state, write, flush)
+        png_set_write_fn(png_ptr, statePointer.toOpaque(), write, flush)
         
         let borderWidth = pixelSize * border
         let height = self.size * pixelSize + 2 * borderWidth
